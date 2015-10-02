@@ -17,10 +17,15 @@ figure
 Sx = S;
 Sy = S;
 [rows, columns] = size(S);
-for i = 1:rows-1
-    for j = 1:columns-1
-        Sx(i, j) = (S(i, j+1) - S(i, j) + S(i+1, j+1) - S(i+1, j))/2;
-        Sy(i, j) = (S(i, j) - S(i+1, j) + S(i, j+1) - S(i+1, j+1))/2;
+for i = 1:rows
+    for j = 1:columns
+        if i >= rows || j >= columns % Pads smoothed image with zeroes on last row and column
+            Sx(i, j) = 0;
+            Sy(i, j) = 0;
+        else
+            Sx(i, j) = (S(i, j+1) - S(i, j) + S(i+1, j+1) - S(i+1, j))/2;
+            Sy(i, j) = (S(i, j) - S(i+1, j) + S(i, j+1) - S(i+1, j+1))/2;
+        end
     end
 end
 
@@ -28,7 +33,6 @@ end
 M = sqrt(Sx.^2 + Sy.^2);
 
 [M_row, M_col] = size(M);
-M = M(1:M_row-1, 1:M_col-1);
 max_in_M = max(max(M));
 M_normalized = M./max_in_M;
 imshow(M_normalized);
@@ -38,7 +42,6 @@ figure
 theta = atan2(Sy, Sx);
 
 [theta_row, theta_col] = size(theta);
-theta = theta(1:theta_row-1, 1:theta_col-1);
 max_in_theta = max(max(theta));
 theta_normalized = theta./max_in_theta;
 imshow(theta_normalized);
