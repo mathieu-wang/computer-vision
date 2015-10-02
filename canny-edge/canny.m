@@ -5,9 +5,11 @@ imshow(I);
 figure;
 
 %% Blur the image using Gaussian filter
-sigma = 1;
+sigma = 1.4;
 G = gaussian(sigma);
+% TODO: Implement conv2
 S = conv2(I, G, 'same'); % Get smoothed image S
+
 imshow(S);
 figure
 
@@ -24,8 +26,14 @@ end
 
 %% Get the magnitude and orientation of the gradient
 M = sqrt(Sx.^2 + Sy.^2);
-imshow(M);
+[M_row, M_col] = size(M);
+M = M(1:M_row-1, 1:M_col-1);
+max_in_M = max(max(M));
+M_normalized = M./max_in_M;
+imshow(M_normalized);
 figure
 theta = atan2(Sy, Sx);
 imshow(theta);
 figure
+
+%% Nonmaxima Suppression
