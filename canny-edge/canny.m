@@ -26,14 +26,22 @@ end
 
 %% Get the magnitude and orientation of the gradient
 M = sqrt(Sx.^2 + Sy.^2);
+
 [M_row, M_col] = size(M);
 M = M(1:M_row-1, 1:M_col-1);
 max_in_M = max(max(M));
 M_normalized = M./max_in_M;
 imshow(M_normalized);
 figure
+
+
 theta = atan2(Sy, Sx);
-imshow(theta);
+
+[theta_row, theta_col] = size(theta);
+theta = theta(1:theta_row-1, 1:theta_col-1);
+max_in_theta = max(max(theta));
+theta_normalized = theta./max_in_theta;
+imshow(theta_normalized);
 figure
 
 %% Nonmaxima Suppression
