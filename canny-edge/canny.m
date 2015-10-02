@@ -1,11 +1,11 @@
 %% Read the image and convert to double
-I = imread('resources/city.pgm');
+I = imread('resources/tower.pgm');
 I = im2double(I);
 imshow(I);
-figure;
+figure
 
 %% Blur the image using Gaussian filter
-sigma = 1.4;
+sigma = 1;
 G = gaussian(sigma);
 % TODO: Implement conv2
 S = conv2(I, G, 'same'); % Get smoothed image S
@@ -48,3 +48,4 @@ imshow(theta_normalized);
 figure
 
 %% Nonmaxima Suppression
+zeta = sector(theta);
