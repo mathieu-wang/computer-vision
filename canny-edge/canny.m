@@ -1,3 +1,9 @@
+%% Parameters
+sigma = 1;
+tao1 = 0.2;
+
+tao2 = 2*tao1;
+
 %% Read the image and convert to double
 I = imread('resources/tower.pgm');
 I = im2double(I);
@@ -5,7 +11,6 @@ figure
 imshow(I);
 
 %% Blur the image using Gaussian filter
-sigma = 1;
 G = gaussian(sigma);
 % TODO: Implement conv2
 S = conv2(I, G, 'same'); % Get smoothed image S
@@ -40,9 +45,22 @@ theta = atan2(Sy, Sx);
 figure
 imshow(normalize(theta));
 
-%% Nonmaxima Suppression to thin the edges
+%% Nonmaxima Suppression for edge thinning
 zeta = sector(theta);
 N = nms(M, zeta);
 
+normalized_N = normalize(N);
 figure
-imshow(normalize(N));
+imshow(normalized_N);
+
+%% Double thresholding
+T1 = im2bw(normalized_N,tao1);
+T2 = im2bw(normalized_N,tao2);
+
+figure
+imshow(T1);
+figure
+imshow(T2);
+
+
+%% Edge linking
