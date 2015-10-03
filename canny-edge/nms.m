@@ -1,5 +1,6 @@
 function N = nms(M, zeta)
 
+[M_row, M_col] = size(M);
 for i = 1:M_row
     for j = 1:M_col
         center_value = M(i, j);
@@ -41,4 +42,4 @@ for i = 1:M_row
         end
     end
 end
-N = M
+N = M;
