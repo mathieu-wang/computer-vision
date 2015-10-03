@@ -16,10 +16,10 @@ figure
 %% Get partial derivatives of the smoothed image using first-difference approximations
 Sx = S;
 Sy = S;
-[rows, columns] = size(S);
-for i = 1:rows
-    for j = 1:columns
-        if i >= rows || j >= columns % Pads smoothed image with zeroes on last row and column
+[S_rows, S_columns] = size(S);
+for i = 1:S_rows
+    for j = 1:S_columns
+        if i >= rows || j >= S_columns % Pads smoothed image with zeros on last row and column
             Sx(i, j) = 0;
             Sy(i, j) = 0;
         else
@@ -49,3 +49,47 @@ figure
 
 %% Nonmaxima Suppression
 zeta = sector(theta);
+for i = 1:M_row
+    for j = 1:M_col
+        center_value = M(i, j);
+        sector = zeta(i, j);
+        neighbor1 = 0;
+        neighbor2 = 0;
+        if sector == 0
+            if j > 1
+                neighbor1 = M(i, j-1);
+            end
+            if j < M_col
+                neighbor2 = M(i, j+1);
+            end
+        elseif sector == 1
+            if i < M_row && j > 1
+                neighbor1 = M(i+1, j-1);
+            end
+            if i > 1 && j < M_col
+                neighbor2 = M(i-1, j+1);
+            end
+        elseif sector == 2
+            if i < M_row
+                neighbor1 = M(i+1, j);
+            end
+            if i > 1
+                neighbor1 = M(i-1, j);
+            end
+        else
+            if i < M_row && j < M_col
+                neighbor1 = M(i+1, j+1);
+            end
+            if i > 1 && j > 1
+                neighbor2 = M(i-1, j-1);
+            end
+        end
+
+        if neighbor1 >= center_value || neighbor2 >= center_value
+            M(i, j) = 0;
+        end
+    end
+end
+
+imshow(M);
+figure
