@@ -5,18 +5,19 @@ tao1 = 0.2;
 tao2 = 2*tao1;
 
 %% Read the image and convert to double
-I = imread('resources/plant.pgm');
+I = imread('resources/tower.pgm');
 I = im2double(I);
 figure
-imshow(I);
+h = imshow(I);
+saveas(h,'out/original_image.jpg');
 
 %% Blur the image using Gaussian filter
 G = gaussian(sigma);
-% TODO: Implement conv2
-S = conv2(I, G, 'same'); % Get smoothed image S
+S = convolution(I, G); % Get smoothed image S
 
 figure
-imshow(S);
+h = imshow(S);
+saveas(h,'out/smoothed_image.jpg');
 
 %% Get partial derivatives of the smoothed image using first-difference approximations
 Sx = S;
@@ -40,29 +41,33 @@ Sobely3x3 = [-1 -2 -1; 0 0 0; 1 2 1];
 Sobelx5x5 = [1 2 0 -2 -1; 4 8 0 -8 -4; 6 12 0 -12 -6; 4 8 0 -8 -4; 1 2 0 -2 -1];
 Sobely5x5 = [-1 -4 -6 -4 -1; -2 -8 -12 -8 -2; 0 0 0 0 0; 2 8 12 8 2; 1 4 6 4 1];
 
-Sx_Sob3x3 = conv2(I, Sobelx3x3, 'same');
-Sy_Sob3x3 = conv2(I, Sobely3x3, 'same');
+Sx_Sob3x3 = convolution(I, Sobelx3x3);
+Sy_Sob3x3 = convolution(I, Sobely3x3);
 M_Sob3x3 = sqrt(Sx_Sob3x3.^2 + Sy_Sob3x3.^2);
 figure('Name', 'Magnitude After Sobel 3x3')
-imshow(normalize(M_Sob3x3));
+h = imshow(normalize(M_Sob3x3));
+saveas(h,'out/magnitude_3x3sobel.jpg');
 
-Sx_Sob5x5 = conv2(I, Sobelx5x5, 'same');
-Sy_Sob5x5 = conv2(I, Sobely5x5, 'same');
+Sx_Sob5x5 = convolution(I, Sobelx5x5);
+Sy_Sob5x5 = convolution(I, Sobely5x5);
 M_Sob5x5 = sqrt(Sx_Sob5x5.^2 + Sy_Sob5x5.^2);
 figure('Name', 'Magnitude After Sobel 5x5')
-imshow(normalize(M_Sob5x5));
+h = imshow(normalize(M_Sob5x5));
+saveas(h,'out/magnitude_5x5sobel.jpg');
 
 
 %% Get the magnitude and orientation of the gradient
 M = sqrt(Sx.^2 + Sy.^2);
 
 figure
-imshow(normalize(M));
+h = imshow(normalize(M));
+saveas(h,'out/magnitude_gaussian.jpg');
 
 theta = atan2(Sy, Sx);
 
 figure
-imshow(normalize(theta));
+h = imshow(normalize(theta));
+saveas(h,'out/phase_gaussian.jpg');
 
 %% Nonmaxima Suppression for edge thinning
 zeta = sector(theta);
@@ -70,16 +75,20 @@ N = nms(M, zeta);
 
 normalized_N = normalize(N);
 figure
-imshow(normalized_N);
+h = imshow(normalized_N);
+saveas(h,'out/nonmaxima_suppressed.jpg');
 
 %% Double thresholding
 T1 = im2bw(normalized_N,tao1);
 T2 = im2bw(normalized_N,tao2);
 
 figure
-imshow(T1);
+h = imshow(T1);
+saveas(h,'out/T1.jpg');
+
 figure
-imshow(T2);
+h = imshow(T2);
+saveas(h,'out/T2.jpg');
 
 
 %% Edge linking
@@ -88,7 +97,7 @@ imshow(T2);
 [T2_row, T2_col] = size(T2);
 endpoints = zeros(T2_row, T2_col);
 final_image = T2;
-for ind=1:size(re)
+for ind=1:size(row_vector)
     i = row_vector(ind);
     j = col_vector(ind);
     endpoints(i, j) = 1;
@@ -166,7 +175,9 @@ for ind=1:size(re)
 end
 
 figure
-imshow(endpoints);
+h = imshow(endpoints);
+saveas(h,'out/endpoints.jpg');
 
 figure
-imshow(final_image);
+h = imshow(final_image);
+saveas(h,'out/final_image.jpg');
