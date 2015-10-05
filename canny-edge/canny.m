@@ -34,6 +34,25 @@ for i = 1:S_rows
     end
 end
 
+%% Convolve with Sobel operators to compare
+Sobelx3x3 = [1 0 -1; 2 0 -2; 1 0 -1];
+Sobely3x3 = [-1 -2 -1; 0 0 0; 1 2 1];
+Sobelx5x5 = [1 2 0 -2 -1; 4 8 0 -8 -4; 6 12 0 -12 -6; 4 8 0 -8 -4; 1 2 0 -2 -1];
+Sobely5x5 = [-1 -4 -6 -4 -1; -2 -8 -12 -8 -2; 0 0 0 0 0; 2 8 12 8 2; 1 4 6 4 1];
+
+Sx_Sob3x3 = conv2(I, Sobelx3x3, 'same');
+Sy_Sob3x3 = conv2(I, Sobely3x3, 'same');
+M_Sob3x3 = sqrt(Sx_Sob3x3.^2 + Sy_Sob3x3.^2);
+figure('Name', 'Magnitude After Sobel 3x3')
+imshow(normalize(M_Sob3x3));
+
+Sx_Sob5x5 = conv2(I, Sobelx5x5, 'same');
+Sy_Sob5x5 = conv2(I, Sobely5x5, 'same');
+M_Sob5x5 = sqrt(Sx_Sob5x5.^2 + Sy_Sob5x5.^2);
+figure('Name', 'Magnitude After Sobel 5x5')
+imshow(normalize(M_Sob5x5));
+
+
 %% Get the magnitude and orientation of the gradient
 M = sqrt(Sx.^2 + Sy.^2);
 
