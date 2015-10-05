@@ -64,3 +64,174 @@ imshow(T2);
 
 
 %% Edge linking
+%[k, l] = findendofcontour(T2, visited, i, j);
+%while has_not_linked_to_next_edge_in_T2_so_only_one_T2_point_in_neighborhood
+%    t1_points = [];
+%    try_linking_using_t1;
+%    break_after_ten_pixels
+
+%{
+[T2_row, T2_col] = size(T2);
+final_image = T2;
+
+for i = 2:T2_row-1
+    for j = 2:T2_col-1
+        if T2(i, j) == 1
+            if T1(i-1, j-1) == 1
+                final_image(i-1, j-1) = 1;
+            end
+            if T1(i-1, j) == 1
+                final_image(i-1, j) = 1;
+            end
+            if T1(i-1, j+1) == 1
+                final_image(i-1, j+1) = 1;
+            end
+            if T1(i, j-1) == 1
+                final_image(i, j-1) = 1;
+            end
+            if T1(i, j+1) == 1
+                final_image(i, j+1) = 1;
+            end
+            if T1(i+1, j-1) == 1
+                final_image(i+1, j-1) = 1;
+            end
+            if T1(i+1, j) == 1
+                final_image(i+1, j) = 1;
+            end
+            if T1(i+1, j+1) == 1
+                final_image(i+1, j+1) = 1;
+            end
+        end
+    end
+end
+%}
+
+[rj, cj, re, ce] = findendsjunctions(T2);
+
+endpoints = zeros(T2_row, T2_col);
+final_image = T2;
+for ind=1:size(re)
+    i = re(ind);
+    j = ce(ind);
+    endpoints(i, j) = 1;
+
+    if i > 1 && j >1 && i < T2_row && j < T2_col
+        if T1(i-1, j-1) == 1
+            next_i = i-1;
+            next_j = j-1;
+            while T2(next_i, next_j) == 0 && T1(next_i, next_j) == 1 && next_i >= 1 && next_j >= 1 % extend in that direction
+                final_image(next_i, next_j) = 1;
+                next_i = i-1;
+                next_j = j-1;
+            end
+        end
+        if T1(i-1, j) == 1
+            next_i = i-1;
+            next_j = j;
+            while T2(next_i, next_j) == 0 && T1(next_i, next_j) == 1 && next_i >= 1 % extend in that direction
+                final_image(next_i, next_j) = 1;
+                next_i = i-1;
+                next_j = j;
+            end
+        end
+        if T1(i-1, j+1) == 1
+            next_i = i-1;
+            next_j = j+1;
+            while T2(next_i, next_j) == 0 && T1(next_i, next_j) == 1 && next_i >= 1 && next_j <= T2_col % extend in that direction
+                final_image(next_i, next_j) = 1;
+                next_i = i-1;
+                next_j = j+1;
+            end
+        end
+        if T1(i, j-1) == 1
+            next_i = i;
+            next_j = j-1;
+            while T2(next_i, next_j) == 0 && T1(next_i, next_j) == 1 && next_j >= 1 % extend in that direction
+                final_image(next_i, next_j) = 1;
+                next_i = i;
+                next_j = j-1;
+            end
+        end
+        if T1(i, j+1) == 1
+            next_i = i;
+            next_j = j+1;
+            while T2(next_i, next_j) == 0 && T1(next_i, next_j) == 1 && next_j <= T2_col % extend in that direction
+                final_image(next_i, next_j) = 1;
+                next_i = i;
+                next_j = j+1;
+            end
+        end
+        if T1(i+1, j-1) == 1
+            next_i = i+1;
+            next_j = j-1;
+            while T2(next_i, next_j) == 0 && T1(next_i, next_j) == 1 && next_i <= T2_row && next_j >= 1 % extend in that direction
+                final_image(next_i, next_j) = 1;
+                next_i = i+1;
+                next_j = j-1;
+            end
+        end
+        if T1(i+1, j) == 1
+            next_i = i+1;
+            next_j = j;
+            while T2(next_i, next_j) == 0 && T1(next_i, next_j) == 1 && next_i <= T2_row % extend in that direction
+                final_image(next_i, next_j) = 1;
+                next_i = i+1;
+                next_j = j;
+            end
+        end
+        if T1(i+1, j+1) == 1
+            next_i = i+1;
+            next_j = j+1;
+            while T2(next_i, next_j) == 0 && T1(next_i, next_j) == 1 && next_i <= T2_row && next_j <= T2_col % extend in that direction
+                final_image(next_i, next_j) = 1;
+                next_i = i+1;
+                next_j = j+1;
+            end
+        end
+    end
+end
+
+figure
+imshow(endpoints);
+%}
+figure
+imshow(final_image);
+%{
+[final_image_row, final_image_col] = size(final_image);
+visited = zeros(final_image_row, final_image_col);
+
+for i = 2:final_image_row-1
+    for j = 2:final_image_col-1
+        visited(i, j) = 1;
+        if final_image(i, j) == 1
+            if T1(i-1) == 1;
+                final_image(i
+            
+            if j > 1
+                neighbor1 = T1(i, j-1);
+            if j < T1_col
+                neighbor2 = T1(i, j+1);
+            end
+        elseif sector == 1
+            if i < T1_row && j > 1
+                neighbor1 = T1(i+1, j-1);
+            end
+            if i > 1 && j < T1_col
+                neighbor2 = T1(i-1, j+1);
+            end
+        elseif sector == 2
+            if i < T1_row
+                neighbor1 = T1(i+1, j);
+            end
+            if i > 1
+                neighbor1 = T1(i-1, j);
+            end
+        else
+            if i < T1_row && j < T1_col
+                neighbor1 = T1(i+1, j+1);
+            end
+            if i > 1 && j > 1
+                neighbor2 = T1(i-1, j-1);
+            end
+        end
+%} 
