@@ -39,6 +39,17 @@ highestCounts = sortedCounts(1:26); % TODO: Change to 256 after appending other 
 highestCountsIndexes = sortedIndices(1:26); % TODO: Change to 256 after appending other images
 
 highestCountsCenters = C(highestCountsIndexes,:);
+
+colors = generate_nplus1_colors(26);
+
+I_test = imread(char(training_set(5)));
+hog_test = vl_hog(im2single(I_test), cellSize, 'verbose') ;
+reshaped_hog_test = reshape(hog_test, [2016, 31]);
+ 
+
+% Map the test image to all 50(0) clusters, then check if they are in
+% highestCountCenters
+
 %{
 I_single = im2single(I);
 binSize = 8 ;
