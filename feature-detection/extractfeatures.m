@@ -1,5 +1,5 @@
 
-numbers = int8(39*rand([1, 10]));
+%numbers = int8(39*rand([1, 10]));
 
 training_set = {'CroppedYale/yaleB02/yaleB02_P00A-005E-10.pgm';
                     'CroppedYale/yaleB07/yaleB07_P00A-085E+20.pgm';
@@ -23,16 +23,29 @@ for i=1:length(training_set)
 end
 %}
                     
+I = imread(char(training_set(4)));
+
+cellSize = 4 ;
+hog = vl_hog(im2single(I), cellSize, 'verbose') ;
+reshaped_hog = reshape(hog, [2016, 31]);
+imhog = vl_hog('render', hog, 'verbose');
+clf ; imagesc(imhog) ; colormap gray ;
+
+[idx,C] = kmeans(reshaped_hog, 50, 'Display','iter'); %change to 500 after appending other images
+
+
+[counts, edges] = histcounts(idx, 26); % change to 256 after appending other images
+[sortedCounts, sortIndexes] = sort(counts, 'descend');
+
+
 %{
-I = imread(char(training_set(1)));
-[featureVector, hogVisualization] = extractHOGFeatures(I);
 I_single = im2single(I);
 binSize = 8 ;
 magnif = 3 ;
 Is = vl_imsmooth(I_single, sqrt((binSize/magnif)^2 - .25)) ;
 
 [f, d] = vl_dsift(Is, 'size', binSize) ;
-%}
+                    
 
 img = imread(char(training_set(1)));
 nFiltSize=8;
@@ -65,5 +78,4 @@ subplot(2,2,4)
 hist(single( effTightRILBP(:) ), tightValsRILBP);
 axis tight;
 title('RI-LBP tight hsitogram', 'fontSize', 16);
-
-
+%}
