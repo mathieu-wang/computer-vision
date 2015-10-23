@@ -31,13 +31,14 @@ reshaped_hog = reshape(hog, [2016, 31]);
 imhog = vl_hog('render', hog, 'verbose');
 clf ; imagesc(imhog) ; colormap gray ;
 
-[idx,C] = kmeans(reshaped_hog, 50, 'Display','iter'); %change to 500 after appending other images
+[idx,C] = kmeans(reshaped_hog, 50, 'Display','iter'); % TODO: change to 500 after appending other images
 
+[counts, edges] = histcounts(idx); % num bins should be the number of clusters
+[sortedCounts, sortedIndices] = sort(counts, 'descend');
+highestCounts = sortedCounts(1:26); % TODO: Change to 256 after appending other images
+highestCountsIndexes = sortedIndices(1:26); % TODO: Change to 256 after appending other images
 
-[counts, edges] = histcounts(idx, 26); % change to 256 after appending other images
-[sortedCounts, sortIndexes] = sort(counts, 'descend');
-
-
+highestCountsCenters = C(highestCountsIndexes,:);
 %{
 I_single = im2single(I);
 binSize = 8 ;
