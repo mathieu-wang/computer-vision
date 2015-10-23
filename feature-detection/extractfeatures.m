@@ -26,26 +26,46 @@ end
 I = imread(char(training_set(4)));
 
 cellSize = 4 ;
+numCluster = 50;
+numSizeCodebook = 26;
+
 hog = vl_hog(im2single(I), cellSize, 'verbose') ;
 reshaped_hog = reshape(hog, [2016, 31]);
 imhog = vl_hog('render', hog, 'verbose');
 clf ; imagesc(imhog) ; colormap gray ;
 
-[idx,C] = kmeans(reshaped_hog, 50, 'Display','iter'); % TODO: change to 500 after appending other images
+[idx,C] = kmeans(reshaped_hog, numCluster, 'Display','iter'); % TODO: change to 500 after appending other images
 
 [counts, edges] = histcounts(idx); % num bins should be the number of clusters
 [sortedCounts, sortedIndices] = sort(counts, 'descend');
-highestCounts = sortedCounts(1:26); % TODO: Change to 256 after appending other images
-highestCountsIndexes = sortedIndices(1:26); % TODO: Change to 256 after appending other images
+highestCounts = sortedCounts(1:numSizeCodebook); % TODO: Change to 256 after appending other images
+highestCountsIndices = sortedIndices(1:numSizeCodebook); % TODO: Change to 256 after appending other images
 
-highestCountsCenters = C(highestCountsIndexes,:);
+highestCountsCenters = C(highestCountsIndices,:);
 
-colors = generate_nplus1_colors(26);
+colors = generate_nplus1_colors(numSizeCodebook);
 
 I_test = imread(char(training_set(5)));
 hog_test = vl_hog(im2single(I_test), cellSize, 'verbose') ;
-reshaped_hog_test = reshape(hog_test, [2016, 31]);
- 
+% reshaped_hog_test = reshape(hog_test, [2016, 31]);
+
+final_image = zeros([size(I) 3]);
+[hog_test_rows, hog_test_cols, ~] = size(hog_test);
+for i = 1:hog_test_rows
+    for j = 1:hog_test_cols
+        [idx, closestCenter] = find_closest_center(hog_test(i, j, :), C);
+        [Lia, countIdx] = ismember(idx, highestCountsIndices);
+        color_index = numSizeCodebook + 1;
+        if countIdx > 0
+            color_index = countIdx; % expect only one element since values in highestCountsIndices are unique
+        end
+        final_image(cellSize*i, cellSize*j, :) = colors(color_index);
+    end
+end
+figure;
+imshow(I_test);
+figure;
+imshow(final_image, []);
 
 % Map the test image to all 50(0) clusters, then check if they are in
 % highestCountCenters

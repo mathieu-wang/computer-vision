@@ -1,8 +1,7 @@
-%function colors = generate_nplus1_colors(n)
+function colors = generate_nplus1_colors(n)
     n = 26;
     colors = zeros([n+1 3]);
     for i = 1:n
-        %interval = 256*256*256/n;
         interval = 3/n;
         progress = i * interval;
         if progress > 2
