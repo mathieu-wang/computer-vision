@@ -11,6 +11,18 @@ training_set = {'CroppedYale/yaleB02/yaleB02_P00A-005E-10.pgm';
                     'CroppedYale/yaleB22/yaleB22_P00A-050E+00.pgm';
                     'CroppedYale/yaleB23/yaleB23_P00A+050E-40.pgm';
                     'CroppedYale/yaleB33/yaleB33_P00A+120E+00.pgm'};
+                
+test_set = {'CroppedYale/yaleB15/yaleB15_P00A-010E-20.pgm';
+            'CroppedYale/yaleB15/yaleB15_P00A-035E+15.pgm';
+            'CroppedYale/yaleB15/yaleB15_P00A+020E-40.pgm';
+            'CroppedYale/yaleB15/yaleB15_P00A+035E+15.pgm';
+            'CroppedYale/yaleB15/yaleB15_P00A+050E+00.pgm';
+            'CroppedYale/yaleB15/yaleB15_P00A-060E+20.pgm';
+            'CroppedYale/yaleB15/yaleB15_P00A+085E-20.pgm';
+            'CroppedYale/yaleB15/yaleB15_P00A+110E+65.pgm';
+            'CroppedYale/yaleB15/yaleB15_P00A-070E-35.pgm';
+            'CroppedYale/yaleB15/yaleB15_P00A-050E-40.pgm'};
+    
 
 %{
 for i=1:length(training_set)
@@ -22,8 +34,6 @@ for i=1:length(training_set)
     plot(hogVisualization);
 end
 %}
-                    
-I = imread(char(training_set(4)));
 
 cellSize = 4 ;
 numCluster = 500;
@@ -33,53 +43,47 @@ feature_vector = [];
 for i=1:length(training_set)
     img = imread(char(training_set(i)));
     hog = vl_hog(im2single(img), cellSize, 'verbose');
-    reshaped_hog = reshape(hog, [2016, 31]);
+    [hog_rows, hog_cols, ~] = size(hog);
+    reshaped_hog = reshape(hog, [hog_rows*hog_cols, 31]); % reshape so it can be processed with k-means
     feature_vector = [feature_vector; reshaped_hog];
 end
-% hog = vl_hog(im2single(I), cellSize, 'verbose') ;
-% reshaped_hog = reshape(hog, [2016, 31]);
-% imhog = vl_hog('render', hog, 'verbose');
-% clf ; imagesc(imhog) ; colormap gray ;
 
-[idx,C] = kmeans(feature_vector, numCluster, 'Display','iter'); % TODO: change to 500 after appending other images
+[idx,C] = kmeans(feature_vector, numCluster, 'Display','iter');
 
-[counts, edges] = histcounts(idx, numCluster); % num bins should be the number of clusters
-[sortedCounts, sortedIndices] = sort(counts, 'descend');
-highestCounts = sortedCounts(1:numSizeCodebook); % TODO: Change to 256 after appending other images
-highestCountsIndices = sortedIndices(1:numSizeCodebook); % TODO: Change to 256 after appending other images
-
+[counts, edges] = histcounts(idx, numCluster); % num bins is the number of clusters
+[sortedCounts, sortedIndices] = sort(counts, 'descend'); % sort in descending order of frequency
+highestCounts = sortedCounts(1:numSizeCodebook);
+highestCountsIndices = sortedIndices(1:numSizeCodebook);
 highestCountsCenters = C(highestCountsIndices,:);
 
-colors = generate_nplus1_colors(numSizeCodebook);
+colors = generate_nplus1_colors(numSizeCodebook); % generate colors according to the size of the codebook
 
-I_test = imread(char(training_set(5)));
-hog_test = vl_hog(im2single(I_test), cellSize, 'verbose') ;
-% reshaped_hog_test = reshape(hog_test, [2016, 31]);
+for i=1:length(test_set)
+    I_test = imread(char(test_set(i)));
+    hog_test = vl_hog(im2single(I_test), cellSize, 'verbose') ;
 
-final_image = zeros([size(I) 3]);
-[hog_test_rows, hog_test_cols, ~] = size(hog_test);
-for i = 1:hog_test_rows
-    for j = 1:hog_test_cols
-        [idx, closestCenter] = find_closest_center(hog_test(i, j, :), C);
-        [Lia, countIdx] = ismember(idx, highestCountsIndices);
-        color_index = numSizeCodebook + 1;
-        if countIdx > 0
-            color_index = countIdx; % expect only one element since values in highestCountsIndices are unique
-        end
-        for k = (i-1)*cellSize+1:i*cellSize
-            for l = (j-1)*cellSize+1:j*cellSize
-                final_image(k, l, :) = colors(color_index);
+    final_image = zeros([size(I) 3]);
+    [hog_test_rows, hog_test_cols, ~] = size(hog_test);
+    for i = 1:hog_test_rows
+        for j = 1:hog_test_cols
+            [idx, closestCenter] = find_closest_center(hog_test(i, j, :), C);
+            [Lia, countIdx] = ismember(idx, highestCountsIndices);
+            color_index = numSizeCodebook + 1;
+            if countIdx > 0
+                color_index = countIdx; % expect only one element since values in highestCountsIndices are unique
+            end
+            for k = (i-1)*cellSize+1:i*cellSize
+                for l = (j-1)*cellSize+1:j*cellSize
+                    final_image(k, l, :) = colors(color_index);
+                end
             end
         end
     end
+    figure;
+    imshow(I_test);
+    figure;
+    imshow(final_image, []);
 end
-figure;
-imshow(I_test);
-figure;
-imshow(final_image, []);
-
-% Map the test image to all 50(0) clusters, then check if they are in
-% highestCountCenters
 
 %{
 I_single = im2single(I);
