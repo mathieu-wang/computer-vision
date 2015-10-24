@@ -59,7 +59,11 @@ for i = 1:hog_test_rows
         if countIdx > 0
             color_index = countIdx; % expect only one element since values in highestCountsIndices are unique
         end
-        final_image(cellSize*i, cellSize*j, :) = colors(color_index);
+        for k = (i-1)*cellSize+1:i*cellSize
+            for l = (j-1)*cellSize+1:j*cellSize
+                final_image(k, l, :) = colors(color_index);
+            end
+        end
     end
 end
 figure;
