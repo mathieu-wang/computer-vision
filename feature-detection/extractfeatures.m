@@ -26,17 +26,24 @@ end
 I = imread(char(training_set(4)));
 
 cellSize = 4 ;
-numCluster = 50;
-numSizeCodebook = 26;
+numCluster = 500;
+numSizeCodebook = 256;
 
-hog = vl_hog(im2single(I), cellSize, 'verbose') ;
-reshaped_hog = reshape(hog, [2016, 31]);
-imhog = vl_hog('render', hog, 'verbose');
-clf ; imagesc(imhog) ; colormap gray ;
+feature_vector = [];
+for i=1:length(training_set)
+    img = imread(char(training_set(i)));
+    hog = vl_hog(im2single(img), cellSize, 'verbose');
+    reshaped_hog = reshape(hog, [2016, 31]);
+    feature_vector = [feature_vector; reshaped_hog];
+end
+% hog = vl_hog(im2single(I), cellSize, 'verbose') ;
+% reshaped_hog = reshape(hog, [2016, 31]);
+% imhog = vl_hog('render', hog, 'verbose');
+% clf ; imagesc(imhog) ; colormap gray ;
 
-[idx,C] = kmeans(reshaped_hog, numCluster, 'Display','iter'); % TODO: change to 500 after appending other images
+[idx,C] = kmeans(feature_vector, numCluster, 'Display','iter'); % TODO: change to 500 after appending other images
 
-[counts, edges] = histcounts(idx); % num bins should be the number of clusters
+[counts, edges] = histcounts(idx, numCluster); % num bins should be the number of clusters
 [sortedCounts, sortedIndices] = sort(counts, 'descend');
 highestCounts = sortedCounts(1:numSizeCodebook); % TODO: Change to 256 after appending other images
 highestCountsIndices = sortedIndices(1:numSizeCodebook); % TODO: Change to 256 after appending other images

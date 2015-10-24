@@ -1,5 +1,4 @@
 function colors = generate_nplus1_colors(n)
-    n = 26;
     colors = zeros([n+1 3]);
     for i = 1:n
         interval = 3/n;
